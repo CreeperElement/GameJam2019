@@ -95,8 +95,6 @@ public class DoorController : MonoBehaviour
     private void swapPlayer()
     {
 
-        Debug.Log("Swapp");
-
         if (direction == Direction.Forward)
         {
             swap(backPortal.transform.parent.gameObject, twinnerController.backPortal.transform.parent.gameObject, player);
