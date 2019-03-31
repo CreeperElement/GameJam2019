@@ -33,7 +33,9 @@ public class FollowingCamera : MonoBehaviour
         float yPlayer = Mathf.Cos(Mathf.PI * playerAngle / 180f);
 
         transform.position = camOffset + otherDoor.transform.position + otherDoor.transform.right * xPlayer * magnitude + otherDoor.transform.forward * yPlayer * magnitude;
-        
+
+        transform.position += new Vector3(0, player.transform.position.y - playerDoor.transform.position.y, 0);
+
         float playerLookAngle = Vector2.SignedAngle(get2DVector(player.transform.forward), get2DVector(playerDoor.transform.forward));
 
         var xrot = otherCamera.transform.eulerAngles.x;

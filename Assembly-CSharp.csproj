@@ -65,10 +65,15 @@
     <Compile Include="Assets\Camera Scripts\FollowingCamera.cs" />
     <Compile Include="Assets\Door\DoorController.cs" />
     <Compile Include="Assets\Door\PortalDoorListener.cs" />
-    <Compile Include="Assets\LoadLevel.cs" />
+    <Compile Include="Assets\Misc Scripts\Crowbar.cs" />
+    <Compile Include="Assets\Misc Scripts\GetKey.cs" />
+    <Compile Include="Assets\Misc Scripts\LoadLevel.cs" />
+    <Compile Include="Assets\Misc Scripts\Safe.cs" />
     <Compile Include="Assets\Player\CameraLook.cs" />
     <Compile Include="Assets\Player\PlayerMove.cs" />
+    <Compile Include="Assets\Wingame.cs" />
     <None Include="Assets\Door\DoorShader.shader" />
+    <None Include="Assets\Materials\Skbox.shader" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/noape/Documents/Game Jam/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
