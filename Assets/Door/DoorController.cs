@@ -43,7 +43,7 @@ public class DoorController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        forwardPortal.gameObject.SetActive(Vector3.Distance(transform.position, player.transform.position) < Vector3.Distance(twinner.transform.position, player.transform.position));
+        /*forwardPortal.gameObject.SetActive(Vector3.Distance(transform.position, player.transform.position) < Vector3.Distance(twinner.transform.position, player.transform.position));
         backPortal.gameObject.SetActive(Vector3.Distance(transform.position, player.transform.position) < Vector3.Distance(twinner.transform.position, player.transform.position));
 
         // The colliders DO overlap
@@ -89,7 +89,7 @@ public class DoorController : MonoBehaviour
         if (!frontListener.ContainsPlayer && !backListener.ContainsPlayer)
         {
             direction = Direction.None;
-        }
+        }*/
     }
 
     private void swapPlayer()
@@ -151,4 +151,10 @@ public class DoorController : MonoBehaviour
     public GameObject OtherDoor {
         get { return twinner; }
     }
+
+    public Transform getTransform()
+    {
+        return forwardPortal.transform;
+    }
 }
+
