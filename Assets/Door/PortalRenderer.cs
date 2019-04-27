@@ -78,13 +78,13 @@ public class PortalRenderer : MonoBehaviour
         float right = Vector3.Project(localCameraOffset, doorTransform.right.normalized).magnitude;
         float up = Vector3.Project(localCameraOffset, doorTransform.up.normalized).magnitude;
 
-        Debug.Log(
-            Vector3.SignedAngle(localCameraOffset, door.transform.up, door.transform.right)
-            );
         right = Vector3.SignedAngle(localCameraOffset, door.transform.forward, door.transform.up) > 0 ?
-            right : -1 * right;
+            -1 * right : right;
         forward = Vector3.SignedAngle(localCameraOffset, door.transform.up, door.transform.right) > 0 ?
             forward : -1 * forward;
+        up = Vector3.SignedAngle(localCameraOffset, door.transform.right, door.transform.forward) > 0 ?
+            -1 * up : up;
+
 
         Vector3 normalizedOffsetScalar = new Vector3(forward, up, right);
 
@@ -94,9 +94,15 @@ public class PortalRenderer : MonoBehaviour
                 twinner.transform.up * normalizedOffsetScalar.y +
                 twinner.transform.right * normalizedOffsetScalar.z
             );
-        //reflectionCam.transform.position = newCamPosition;
         
+        float xRot = Vector3.SignedAngle(original.transform.forward, door.transform.position - original.transform.position, original.transform.right);
+        float yRot = Vector3.SignedAngle(original.transform.forward, door.transform.position - original.transform.position, original.transform.up);
+        float zRot = Vector3.SignedAngle(original.transform.forward, door.transform.position - original.transform.position, original.transform.forward);
+
+        Vector3 newRotation = door.transform.up - new Vector3(xRot, yRot, zRot);
+
         reflection.transform.position = newCamPosition;
+        reflection.transform.eulerAngles = newRotation;
 
         // Calculations work up to here, I made some mistakes in the axes, but they offset each other
 
