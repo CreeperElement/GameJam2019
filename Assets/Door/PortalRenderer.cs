@@ -15,6 +15,7 @@ public class PortalRenderer : MonoBehaviour
     public static int MAX_RENDER_LAYERS = 8;      // What is the max number of layers we can go?
 
     public GameObject reflection;
+    public GameObject cameraPrefab;
 
     //Camera
     Camera cam;
@@ -36,13 +37,12 @@ public class PortalRenderer : MonoBehaviour
     {
         startRender();
         // Don't go too deep
-        if(renderedLayers >= MAX_RENDER_LAYERS || cam == null || cam.name =="SceneCamera")
+        if(renderedLayers >= MAX_RENDER_LAYERS || cam == null || cam.name =="SceneCamera" || Vector3.Angle(cam.transform.forward, controller.forwardPortal.transform.forward) >= 90 )
         {
             endRender();
             return;
         }
-        Camera reflectionCamera = getReflectionCamera(cam, controller);
-
+        getReflectionCamera(cam, controller);
         endRender();
     }
 
@@ -61,7 +61,7 @@ public class PortalRenderer : MonoBehaviour
         renderedLayers--;
     }
 
-    private Camera getReflectionCamera(Camera original, DoorController controller)
+    private void getReflectionCamera(Camera original, DoorController controller)
     {
 
         // Clone the original camera
@@ -94,18 +94,23 @@ public class PortalRenderer : MonoBehaviour
                 twinner.transform.up * normalizedOffsetScalar.y +
                 twinner.transform.right * normalizedOffsetScalar.z
             );
-        
-        float xRot = Vector3.SignedAngle(original.transform.forward, door.transform.position - original.transform.position, original.transform.right);
-        float yRot = Vector3.SignedAngle(original.transform.forward, door.transform.position - original.transform.position, original.transform.up);
-        float zRot = Vector3.SignedAngle(original.transform.forward, door.transform.position - original.transform.position, original.transform.forward);
 
-        Vector3 newRotation = door.transform.up - new Vector3(xRot, yRot, zRot);
+        float yRot = -90 - 1*Vector3.SignedAngle(cam.transform.forward, -door.transform.right, cam.transform.up);
+        float xRot = 90 - Vector3.SignedAngle(cam.transform.forward, -door.transform.forward, cam.transform.right);
+        float zRot = -1*Vector3.SignedAngle(cam.transform.up, door.transform.forward, cam.transform.forward);
 
-        reflection.transform.position = newCamPosition;
-        reflection.transform.eulerAngles = newRotation;
+        Vector3 newRotation = new Vector3(xRot, yRot, zRot);
+
+        Debug.Log(newRotation);
 
         // Calculations work up to here, I made some mistakes in the axes, but they offset each other
+        
+        reflection = Instantiate(cameraPrefab);
 
-        return reflectionCam;
+        reflection.transform.position = newCamPosition;
+        reflection.transform.localEulerAngles = newRotation;
+
+        reflection.GetComponent<Camera>().Render();
+        
     }
 }
