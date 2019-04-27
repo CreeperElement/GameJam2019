@@ -37,7 +37,7 @@ public class PortalRenderer : MonoBehaviour
     {
         startRender();
         // Don't go too deep
-        if(renderedLayers >= MAX_RENDER_LAYERS || cam == null || cam.name =="SceneCamera" || Vector3.Angle(cam.transform.forward, controller.forwardPortal.transform.forward) >= 90 )
+        if(renderedLayers >= MAX_RENDER_LAYERS || cam == null || cam.name =="SceneCamera" || 90 - Vector3.Angle(cam.transform.forward, controller.forwardPortal.transform.forward) >= 90 )
         {
             endRender();
             return;
@@ -111,6 +111,6 @@ public class PortalRenderer : MonoBehaviour
         reflection.transform.localEulerAngles = newRotation;
 
         reflection.GetComponent<Camera>().Render();
-        
+        Destroy(reflection);
     }
 }
