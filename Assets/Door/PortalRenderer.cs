@@ -12,7 +12,7 @@ public class PortalRenderer : MonoBehaviour
         If we aren't careful, we can do infinite layers.
      */
     private static int renderedLayers;                  // How many layers deep are we right now?
-    public static int MAX_RENDER_LAYERS = 8;      // What is the max number of layers we can go?
+    public static int MAX_RENDER_LAYERS = 1;      // What is the max number of layers we can go?
 
     public GameObject reflection;
     public GameObject cameraPrefab;
@@ -36,9 +36,25 @@ public class PortalRenderer : MonoBehaviour
     public void OnWillRenderObject()
     {
         startRender();
+        Debug.Log(cam.name);
+
+        // TODO: This works, we just need to clean it up later
+        // TODO : Need to also make sure we are looking at the portal
+        GameObject door = controller.forwardPortal;
+        Vector3 offset = controller.getTransform().position - cam.transform.position;
+
+        Vector3 relativeProjection = Vector3.Project(offset, door.transform.up);
+        Debug.Log(relativeProjection);
+
         // Don't go too deep
-        if(renderedLayers >= MAX_RENDER_LAYERS || cam == null || cam.name =="SceneCamera" || 90 - Vector3.Angle(cam.transform.forward, controller.forwardPortal.transform.forward) >= 90 )
+        if(
+            GameObject.FindGameObjectsWithTag("RecursiveCamera").Length >= MAX_RENDER_LAYERS
+            || cam == null 
+            || cam.name =="SceneCamera"
+            || cam.name == "Preview Camera"
+            || relativeProjection.z < 0)
         {
+            Debug.Log("Skip");
             endRender();
             return;
         }
@@ -63,10 +79,6 @@ public class PortalRenderer : MonoBehaviour
 
     private void getReflectionCamera(Camera original, DoorController controller)
     {
-
-        // Clone the original camera
-        Camera reflectionCam = new Camera();
-        //reflectionCam.CopyFrom(original);
         GameObject door = controller.forwardPortal;
         GameObject twinner = controller.backPortal;
 
@@ -95,22 +107,33 @@ public class PortalRenderer : MonoBehaviour
                 twinner.transform.right * normalizedOffsetScalar.z
             );
 
-        float yRot = -90 - 1*Vector3.SignedAngle(cam.transform.forward, -door.transform.right, cam.transform.up);
+        /*float yRot = -90 - 1*Vector3.SignedAngle(cam.transform.forward, -door.transform.right, cam.transform.up);
         float xRot = 90 - Vector3.SignedAngle(cam.transform.forward, -door.transform.forward, cam.transform.right);
-        float zRot = -1*Vector3.SignedAngle(cam.transform.up, door.transform.forward, cam.transform.forward);
+        float zRot = -1*Vector3.SignedAngle(cam.transform.forward, door.transform.forward, cam.transform.right);*/
+
+        float xRot = (90 + door.transform.localEulerAngles.x) + cam.transform.localEulerAngles.x;
+        float yRot = doorTransform.localEulerAngles.y + cam.transform.localEulerAngles.y;
+        float zRot = doorTransform.localEulerAngles.z + cam.transform.localEulerAngles.z;
 
         Vector3 newRotation = new Vector3(xRot, yRot, zRot);
-
-        Debug.Log(newRotation);
+            //-door.transform.localEulerAngles - cam.transform.localEulerAngles;//= new Vector3(xRot, yRot, zRot);
 
         // Calculations work up to here, I made some mistakes in the axes, but they offset each other
         
         reflection = Instantiate(cameraPrefab);
+        reflection.name += GameObject.FindGameObjectsWithTag("RecursiveCamera").Length;
 
         reflection.transform.position = newCamPosition;
         reflection.transform.localEulerAngles = newRotation;
 
         reflection.GetComponent<Camera>().Render();
-        Destroy(reflection);
+        Destroy(reflection, 0f);
     }
 }
+
+// Something to Consider::
+//Plane[] planes = GeometryUtility.CalculateFrustumPlanes(Camera);
+//      if (GeometryUtility.TestPlanesAABB(planes, Object.collider.bounds))
+//          return true;
+//      else
+//          return false;

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5950573696692890771}
   m_Layer: 0
   m_Name: FollowingCamera
-  m_TagString: Untagged
+  m_TagString: RecursiveCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
