@@ -36,33 +36,23 @@ public class PortalRenderer : MonoBehaviour
     public void OnWillRenderObject()
     {
         startRender();
-        Debug.Log(cam.name);
-
-        // TODO: This works, we just need to clean it up later
-        // TODO : Need to also make sure we are looking at the portal
-        GameObject door = controller.forwardPortal;
-        Vector3 offset = controller.getTransform().position - cam.transform.position;
-
-        Vector3 relativeProjection = Vector3.Project(offset, door.transform.up);
-        Debug.Log(relativeProjection);
-
-        // Don't go too deep
-        if(
-            GameObject.FindGameObjectsWithTag("RecursiveCamera").Length >= MAX_RENDER_LAYERS
-            || cam == null 
-            || cam.name =="SceneCamera"
-            || cam.name == "Preview Camera"
-            || relativeProjection.z < 0)
+        if (isValidCamera(cam))// Replace with call determining if the portal should be recursively rendered
         {
-            Debug.Log("Skip");
-            endRender();
-            return;
+            MiniTransform relativeTransform = GetRelativeTransform(cam.transform, gameObject.transform, controller.backPortal.transform);
+            cameraPrefab.transform.position = relativeTransform.position;
+            cameraPrefab.transform.localEulerAngles = relativeTransform.rotation + controller.backPortal.transform.localEulerAngles;
         }
-        getReflectionCamera(cam, controller);
         endRender();
     }
 
-    // Housekeeping
+    bool isValidCamera(Camera cam)
+    {
+        return cam.tag.ToLower().Equals("recursivecamera");
+    }
+
+    /// <summary>
+    /// Keep track of number of layers, and set the camera
+    /// </summary>
     private void startRender()
     {
         // Keep track of current number of renders happening
@@ -70,11 +60,70 @@ public class PortalRenderer : MonoBehaviour
         cam = Camera.current; // Which camera is currently rendering me?
     }
 
-    // House keeping
+    /// <summary>
+    /// Keep track of the layers
+    /// </summary>
     private void endRender()
     {
         // Keep track of current number of renders happening
         renderedLayers--;
+    }
+
+    /// <summary>
+    /// <para>Calculates the relative transform of newAnchor so that it reflects the relationship (Position and Rotation) of Object relative to Anchor.</para>
+    /// IE: The positional difference between Object and Anchor will be the same as the returned value and newAnchor.
+    /// <bold>TODO: Rotation is not implemented yet, more research needs to be done!</bold>
+    /// </summary>
+    /// <param name="originalObject">The object whose relatie transform we will be copying.</param>
+    /// <param name="anchor">Object's reference point.</param>
+    /// <param name="newAnchor">The new reference point</param>
+    /// <returns>A tranform reflecting Object's position and rotation relative to the anchor, around the newAnchor</returns>
+    private MiniTransform GetRelativeTransform(Transform originalObject, Transform anchor, Transform newAnchor)
+    {
+        Vector3 positionalWeights = getPositionalWeights(
+            anchor.position - originalObject.position, anchor);         // Get positional offsets from anchor to 
+        Vector3 newPosition = newAnchor.transform.position
+                + newAnchor.right * positionalWeights.x
+                + newAnchor.up * positionalWeights.y
+                + newAnchor.forward * positionalWeights.z;
+        
+        // TODO: This is a placeholder. We need to reserarch and implement this bit yet 
+        Vector3 newRotation = getRelativeRotation(originalObject, anchor);
+
+        return new MiniTransform(newPosition, newRotation);
+    }
+
+    /// <summary>
+    /// Gets the X,Y,Z weights of the positionalOffset relative to the masterTransform.
+    /// </summary>
+    /// <param name="positionalOffset"></param>
+    /// <param name="masterTransform"></param>
+    /// <returns></returns>
+    private Vector3 getPositionalWeights(Vector3 positionalOffset, Transform masterTransform)
+    {
+        float xWeight, yWeight, zWeight;                                                // 3 floats to determine weights
+        xWeight = Vector3.Project(positionalOffset, masterTransform.right).magnitude;   // Get the x-component
+        yWeight = Vector3.Project(positionalOffset, masterTransform.up).magnitude;      // Get the y-component
+        zWeight = Vector3.Project(positionalOffset, masterTransform.forward).magnitude; // Get the z-component
+
+        xWeight = Vector3.SignedAngle(positionalOffset, masterTransform.forward, masterTransform.up) > 0 ? -1 * xWeight : xWeight;
+        yWeight = Vector3.SignedAngle(positionalOffset, masterTransform.right, masterTransform.forward) > 0 ? -1 * yWeight : yWeight;
+        zWeight = Vector3.SignedAngle(positionalOffset, masterTransform.up, masterTransform.right) > 0 ? zWeight : -1 * zWeight;
+
+        return new Vector3(xWeight, yWeight, zWeight);
+    }
+
+    /// <summary>
+    /// Takes two trasforms and calculates the relative rotation difference between the two transforms.
+    /// </summary>
+    /// <param name="originalObject">Satellite object</param>
+    /// <param name="anchor">Object to get roation relative of.</param>
+    /// <returns>Euler Angles</returns>
+    private Vector3 getRelativeRotation(Transform originalObject, Transform anchor)
+    {
+        Vector3 rotation = originalObject.transform.localEulerAngles - anchor.localEulerAngles;
+        rotation += new Vector3(0, 180, 0); // Because we don't perfectly reflect forward, we have to 'turn the camera around'
+        return rotation;
     }
 
     private void getReflectionCamera(Camera original, DoorController controller)
@@ -128,6 +177,25 @@ public class PortalRenderer : MonoBehaviour
 
         reflection.GetComponent<Camera>().Render();
         Destroy(reflection, 0f);
+    }
+
+}
+
+class MiniTransform
+{
+    public Vector3 position { get; set; }
+    public Vector3 rotation { get; set; }
+
+    public MiniTransform()
+    {
+        position = Vector3.zero;
+        rotation = Vector3.zero;
+    }
+
+    public MiniTransform(Vector3 position, Vector3 rotation)
+    {
+        this.position = position;
+        this.rotation = rotation;
     }
 }
 
