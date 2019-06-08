@@ -40,7 +40,7 @@ public class PortalRenderer : MonoBehaviour
         {
             MiniTransform relativeTransform = GetRelativeTransform(cam.transform, gameObject.transform, controller.backPortal.transform);
             cameraPrefab.transform.position = relativeTransform.position;
-            cameraPrefab.transform.localEulerAngles = relativeTransform.rotation + controller.backPortal.transform.localEulerAngles;
+            cameraPrefab.transform.eulerAngles = relativeTransform.rotation;
         }
         endRender();
     }
@@ -80,17 +80,28 @@ public class PortalRenderer : MonoBehaviour
     /// <returns>A tranform reflecting Object's position and rotation relative to the anchor, around the newAnchor</returns>
     private MiniTransform GetRelativeTransform(Transform originalObject, Transform anchor, Transform newAnchor)
     {
-        Vector3 positionalWeights = getPositionalWeights(
-            anchor.position - originalObject.position, anchor);         // Get positional offsets from anchor to 
-        Vector3 newPosition = newAnchor.transform.position
+        // Get the new location
+        Vector3 newPosition = GetRelativePosition(originalObject, anchor, newAnchor);
+        // TODO: This is a placeholder. We need to reserarch and implement this bit yet 
+        Vector3 newRotation = getRelativeRotation(originalObject, anchor, newAnchor, newPosition);
+
+        return new MiniTransform(newPosition, newRotation);
+    }
+
+    /// <summary>
+    /// Get the 3D position which is in the same location relative to newAnchor, as originalObject is to anchor.
+    /// </summary>
+    /// <param name="originalObject"></param>
+    /// <param name="anchor"></param>
+    /// <param name="newAnchor"></param>
+    /// <returns>A vector represetning the relative 3D location of the new Object.</returns>
+    public Vector3 GetRelativePosition(Transform originalObject, Transform anchor, Transform newAnchor)
+    {
+        Vector3 positionalWeights = getPositionalWeights(anchor.position - originalObject.position, anchor);
+        return newAnchor.transform.position
                 + newAnchor.right * positionalWeights.x
                 + newAnchor.up * positionalWeights.y
                 + newAnchor.forward * positionalWeights.z;
-        
-        // TODO: This is a placeholder. We need to reserarch and implement this bit yet 
-        Vector3 newRotation = getRelativeRotation(originalObject, anchor);
-
-        return new MiniTransform(newPosition, newRotation);
     }
 
     /// <summary>
@@ -119,11 +130,24 @@ public class PortalRenderer : MonoBehaviour
     /// <param name="originalObject">Satellite object</param>
     /// <param name="anchor">Object to get roation relative of.</param>
     /// <returns>Euler Angles</returns>
-    private Vector3 getRelativeRotation(Transform originalObject, Transform anchor)
+    private Vector3 getRelativeRotation(Transform originalObject, Transform anchor, Transform newAnchor, Vector3 newPosition)
     {
-        Vector3 rotation = originalObject.transform.localEulerAngles - anchor.localEulerAngles;
-        rotation += new Vector3(0, 180, 0); // Because we don't perfectly reflect forward, we have to 'turn the camera around'
-        return rotation;
+        GameObject copyObj = new GameObject();
+        Transform copy = copyObj.transform;
+
+        copy.position = originalObject.forward + originalObject.transform.position;
+        Vector3 relativeForward = GetRelativePosition(copy, anchor, newAnchor);
+
+        copy.position += originalObject.forward + originalObject.transform.up;
+        Vector3 relativeUp = GetRelativePosition(copy, anchor, newAnchor);
+
+        copy.position = newPosition;
+        copy.LookAt(relativeForward, relativeUp-newPosition);
+
+        Vector3 eulerAngles = copy.eulerAngles;
+
+        Destroy(copyObj);
+        return eulerAngles;
     }
 
     private void getReflectionCamera(Camera original, DoorController controller)
