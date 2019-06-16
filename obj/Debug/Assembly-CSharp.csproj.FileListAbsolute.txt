@@ -503,3 +503,11 @@ D:\Game Jam\obj\Debug\Assembly-CSharp.csproj.CoreCompileInputs.cache
 D:\Game Jam\obj\Debug\Assembly-CSharp.csproj.CopyComplete
 D:\Game Jam\obj\Debug\Assembly-CSharp.dll
 D:\Game Jam\obj\Debug\Assembly-CSharp.pdb
+D:\Game Jam\Temp\bin\Debug\Valve.Newtonsoft.Json.dll
+D:\Game Jam\Temp\bin\Debug\Boo.Lang.dll
+D:\Game Jam\Temp\bin\Debug\UnityEditor.UI.dll
+D:\Game Jam\Temp\bin\Debug\SteamVR_Actions.pdb
+D:\Game Jam\Temp\bin\Debug\SteamVR_Input_Editor.pdb
+D:\Game Jam\Temp\bin\Debug\SteamVR_Editor.pdb
+D:\Game Jam\Temp\bin\Debug\SteamVR.pdb
+D:\Game Jam\Temp\bin\Debug\SteamVR_Windows_EditorHelper.pdb
