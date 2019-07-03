@@ -576,7 +576,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _CameraPrefab: {fileID: 2412886161319084335, guid: 012a805f323150a419a4da8d125d5f9f,
     type: 3}
-  _MAX_RENDER_LAYERS: 10
+  _MAX_RENDER_LAYERS: 5
 --- !u!4 &1567950112
 Transform:
   m_ObjectHideFlags: 0
@@ -708,7 +708,7 @@ PrefabInstance:
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 12.2
+      value: 30.12
       objectReference: {fileID: 0}
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
@@ -755,5 +755,25 @@ PrefabInstance:
       propertyPath: m_Depth
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5548855699963764781, guid: 2d647c25767acd249a1c4d7f6554b37c,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5548855699963764781, guid: 2d647c25767acd249a1c4d7f6554b37c,
+        type: 3}
+      propertyPath: mat
+      value: 
+      objectReference: {fileID: 2100000, guid: 481503b673ca542488a8f1c5bd0fb6ff, type: 2}
+    - target: {fileID: 5548855699963764781, guid: 2d647c25767acd249a1c4d7f6554b37c,
+        type: 3}
+      propertyPath: spriteShader
+      value: 
+      objectReference: {fileID: 4800000, guid: ec74e5c8f608e4544a0f680f6b419e51, type: 3}
+    - target: {fileID: 5548855699963764781, guid: 2d647c25767acd249a1c4d7f6554b37c,
+        type: 3}
+      propertyPath: newTexture
+      value: 
+      objectReference: {fileID: 10912, guid: 0000000000000000f000000000000000, type: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2d647c25767acd249a1c4d7f6554b37c, type: 3}

@@ -63,9 +63,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\BluePrints.cs" />
-    <Compile Include="Assets\Camera Scripts\CameraCollider.cs" />
-    <Compile Include="Assets\Camera Scripts\CamListener.cs" />
-    <Compile Include="Assets\Camera Scripts\FollowingCamera.cs" />
+    <Compile Include="Assets\Camera\CameraCollider.cs" />
+    <Compile Include="Assets\Camera\CamListener.cs" />
+    <Compile Include="Assets\Camera\FollowingCamera.cs" />
+    <Compile Include="Assets\CommandBufferStencil.cs" />
     <Compile Include="Assets\Door\DoorController.cs" />
     <Compile Include="Assets\Door\PortalDoorListener.cs" />
     <Compile Include="Assets\Door\PortalRenderer.cs" />
@@ -76,9 +77,13 @@
     <Compile Include="Assets\Misc Scripts\Safe.cs" />
     <Compile Include="Assets\Player\CameraLook.cs" />
     <Compile Include="Assets\Player\PlayerMove.cs" />
+    <Compile Include="Assets\PortalCutoutRender.cs" />
     <Compile Include="Assets\Wingame.cs" />
+    <None Include="Assets\WriteToStencil.shader" />
+    <None Include="Assets\Camera\MaskedTexture.shader" />
     <None Include="Assets\Door\DoorShader.shader" />
     <None Include="Assets\Materials\Skbox.shader" />
+    <None Include="Assets\Stencil_is_on.shader" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/Game Jam/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>

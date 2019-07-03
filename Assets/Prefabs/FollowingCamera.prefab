@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5950573696692890768}
   - component: {fileID: 5950573696692890771}
   - component: {fileID: 8447065399451464413}
+  - component: {fileID: 5548855699963764781}
   m_Layer: 0
   m_Name: FollowingCamera
   m_TagString: RecursiveCamera
@@ -83,3 +84,15 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5950573696692890780}
   m_Enabled: 1
+--- !u!114 &5548855699963764781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5950573696692890780}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79825f8952ca4c24bad161f68b188967, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
