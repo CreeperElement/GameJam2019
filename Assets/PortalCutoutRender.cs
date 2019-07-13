@@ -7,14 +7,34 @@ public class PortalCutoutRender : MonoBehaviour
     public Material mat;
     public Shader spriteShader;
     public DoorController controller;
-    public Texture newTexture;
+    public Texture2D newTexture;
 
     private Camera cam;
+    private Texture2D mask;
 
     private void Start()
     {
         //mat = new Material(spriteShader);
         cam = GetComponent<Camera>();
+
+        mask = new Texture2D(cam.pixelWidth, cam.pixelHeight, TextureFormat.ARGB32, true);
+        for (int x = 0; x < mask.width; x++)
+            for (int y = 0; y < mask.height; y++)
+            {
+                if (Mathf.Sqrt(
+                    (x - cam.pixelWidth / 2) * (x - cam.pixelWidth)
+                    + (y - cam.pixelHeight / 2) * (y - cam.pixelHeight / 2)) > 10)
+                    mask.SetPixel(x, y, Color.white);
+                else
+                    mask.SetPixel(x, y, new Color(0, 0, 0, 0));
+            }
+        mask.Apply();
+
+        mat.SetTexture("_Mask", (Texture)mask);
+        Debug.Log($"(Mask) Height: {mask.height} Width: {mask.width}");
+        Debug.Log($"(newTexture) Height: {newTexture.height} Width: {newTexture.width}");
+
+        //mat.SetTexture("_Mask", (Texture)newTexture);
     }
 
 
@@ -64,11 +84,8 @@ public class PortalCutoutRender : MonoBehaviour
             }
         }
         */
-
-        Texture2D mask = new Texture2D(cam.pixelWidth, cam.pixelHeight);
-        mask.SetPixels(25, 25, 100, 100, new Color[]{ Color.white }, 16);
-
-        mat.SetTexture("_Mask", newTexture);
+        //System.IO.File.WriteAllBytes(Application.dataPath + "/" + "picture5886.png", mask.EncodeToPNG
+        mat.SetTexture("_Mask", (Texture)mask);
         Graphics.Blit(source, destination, mat);
     }
 }
