@@ -83,6 +83,10 @@ public class PortalCutoutRender : MonoBehaviour
 						//Debug.Log(point);
 						mask.SetPixel((int)point.x - _RADIUS + x, (int)point.y - _RADIUS + y, Color.red);
 					}
+					else
+					{
+						mask.SetPixel((int)point.x - _RADIUS + x, (int)point.y - _RADIUS + y, new Color(0, 0, 0, 0));
+					}
 				}
 			}
 		}
