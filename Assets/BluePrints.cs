@@ -13,6 +13,13 @@ public class BluePrints : MonoBehaviour
         }
     }
 
+    public GameObject _CullingCameraPrefab;
+    public static GameObject CullingCameraPrefab {
+        get {
+            return Instance._CullingCameraPrefab;
+        }
+    }
+
     public int _MAX_RENDER_LAYERS;
     public static int MAX_RENDER_LAYERS {
         get {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Camera;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +14,7 @@ public class PortalCutoutRender : MonoBehaviour
     private Camera cam;
     private Texture2D mask;
 
-    private Color[] fillColorArray;
+    private Color[] fillColorArray, pixelArray;
     private Plane clippingPlane;
 
     private Mesh mesh;
@@ -31,6 +32,9 @@ public class PortalCutoutRender : MonoBehaviour
 		mask.SetPixels(fillColorArray);
         mask.Apply();
 
+        pixelArray = new Color[fillColorArray.Length];
+        fillColorArray.CopyTo(pixelArray, 0);
+
         mat.SetTexture("_Mask", (Texture)mask);
         Debug.Log($"(Mask) Height: {mask.height} Width: {mask.width}");
         Debug.Log($"(newTexture) Height: {newTexture.height} Width: {newTexture.width}");
@@ -47,8 +51,7 @@ public class PortalCutoutRender : MonoBehaviour
          * in combination with the nearClipPlane distance; we can create three points on the nearClipPlane, and 
          * define the nearClipPlane.
          */
-
-        
+         
         Vector3 passThroughA, passThroughB, passThroughC;
         passThroughA = transform.position + transform.forward * cam.nearClipPlane;
         passThroughB = passThroughA + transform.right;
@@ -68,29 +71,30 @@ public class PortalCutoutRender : MonoBehaviour
 			vertices[vertexCount++] = cam.WorldToScreenPoint(vertexPosition);
 		}
 
-        mask.SetPixels(fillColorArray);
 		const int _RADIUS = 5;
 
-		foreach (Vector2 point in vertices)
-		{
-			for (int x = 0; x < 2 * _RADIUS; x++)
-			{
-				for (int y = 0; y < 2 * _RADIUS; y++)
-				{
-					//Debug.Log(GetRadius(point, new Vector2(x, y)));
-					if (GetRadius(point, new Vector2((int)point.x - _RADIUS + x, (int)point.y - _RADIUS + y)) <= _RADIUS)
-					{
-						//Debug.Log(point);
-						mask.SetPixel((int)point.x - _RADIUS + x, (int)point.y - _RADIUS + y, Color.red);
-					}
-					else
-					{
-						mask.SetPixel((int)point.x - _RADIUS + x, (int)point.y - _RADIUS + y, new Color(0, 0, 0, 0));
-					}
-				}
-			}
-		}
-		mask.Apply();
+        // Get the shape
+        var lines = getShape(vertices);
+        // Fill in the shape
+
+        var width = mask.width;
+        var height = mask.height;
+
+        // This section at the moent is unusable. It is too drastic a framerate drop to be used
+        /*for(int y = 0; y < height; y++)
+        {
+            var lineOffset = y * width;
+            for(int x = 0; x < width; x++)
+            {
+                if (inBounds(x, y, lines))
+                    pixelArray[lineOffset + x] = Color.white;
+                else
+                    pixelArray[lineOffset + x] = new Color(0, 0, 0, 0);
+            }
+        }*/
+
+        //mask.SetPixels(pixelArray);
+        mask.Apply();
 
         //System.IO.File.WriteAllBytes(Application.dataPath + "/" + "picture5886.png", mask.EncodeToPNG
         mat.SetTexture("_Mask", (Texture)mask);
@@ -100,6 +104,36 @@ public class PortalCutoutRender : MonoBehaviour
     private static float GetRadius(Vector2 center, Vector2 position)
     {
 	    return Vector2.Distance(center, position);
+    }
+
+    private bool inBounds(int x, int y, List<Boundary> bounds)
+    {
+        foreach(var boundary in bounds)
+        {
+            if (!boundary.inBounds(new Vector2(x, y))) return false;
+        }
+        return true;
+    }
+
+    private List<Boundary> getShape(Vector2[] vertices)
+    {
+        // The vertices come from a mesh, which must have at least three vertices
+        var bounds = new List<Boundary>();
+        var workingLine = new Line(vertices[0], vertices[1]);
+        var boundaryCondition = workingLine.pointIsAbove(vertices[2]) ?
+            BoundaryCondition.Above : BoundaryCondition.Below;
+        bounds.Add(getBoundaryIncludingPoint(new Line(vertices[0], vertices[1]), vertices[2]));
+        bounds.Add(getBoundaryIncludingPoint(new Line(vertices[1], vertices[2]), vertices[0]));
+        bounds.Add(getBoundaryIncludingPoint(new Line(vertices[2], vertices[0]), vertices[1]));
+
+        return bounds;
+    }
+
+    private Boundary getBoundaryIncludingPoint(Line line, Vector2 point)
+    {
+        var boundaryCondition = line.pointIsAbove(point) ?
+            BoundaryCondition.Above : BoundaryCondition.Below;
+        return new Boundary(line, boundaryCondition);
     }
 
 }

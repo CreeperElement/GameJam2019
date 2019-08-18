@@ -14,8 +14,8 @@ public class PortalRenderer : MonoBehaviour
     private static int renderedLayers;                  // How many layers deep are we right now?
     
     //Camera
-    private static GameObject[] cameras;
-    private GameObject cam;
+    private static GameObject[] cameras, cullingCameras;
+    private GameObject cam, cullCam;
     private GameObject previousCamera;
     private static GameObject copyObj;
    
@@ -33,12 +33,21 @@ public class PortalRenderer : MonoBehaviour
 
     private static void InstantiateCameras()
     {
+        // Have to set up two lists of cameras. One to do normal render, and one to cull out everyting else
         cameras = cameras == null ? new GameObject[BluePrints.MAX_RENDER_LAYERS] : cameras;
         for(int i = 0; i < BluePrints.MAX_RENDER_LAYERS; i++)
         {
             cameras[i] = (cameras[i] == null) ? Instantiate(BluePrints.CameraPrefab) : cameras[i];
-            cameras[i].GetComponent<Camera>().depth = 0-(i+1);
+            cameras[i].GetComponent<Camera>().depth = -1 * (2*i + 1);
             cameras[i].SetActive(false);
+        }
+
+        cullingCameras = cullingCameras == null ? new GameObject[BluePrints.MAX_RENDER_LAYERS] : cullingCameras;
+        for (int i = 0; i < BluePrints.MAX_RENDER_LAYERS; i++)
+        {
+            cullingCameras[i] = (cullingCameras[i] == null) ? Instantiate(BluePrints.CullingCameraPrefab) : cullingCameras[i];
+            cullingCameras[i].GetComponent<Camera>().depth = -1 * (2*i);
+            cullingCameras[i].SetActive(false);
         }
     }
 
@@ -54,16 +63,18 @@ public class PortalRenderer : MonoBehaviour
             MiniTransform relativeTransform = GetRelativeTransform(previousCamera.transform, controller.forwardPortal.transform, controller.backPortal.transform);
             // Set the transform
             cam.transform.position = relativeTransform.position;
+            cullCam.transform.position = relativeTransform.position;
             cam.transform.eulerAngles = relativeTransform.rotation;
+            cullCam.transform.eulerAngles = relativeTransform.rotation;
             cam.GetComponent<Camera>().Render();
+            cullCam.GetComponent<Camera>().Render();
         }
-        //cam.GetComponent<Camera>().
         endRender();
     }
 
     bool isValidCamera(GameObject camera)
     {
-        if (camera == null || !camera.tag.ToLower().Equals("recursivecamera"))
+        if (camera == null || !camera.tag.ToLower().Equals("recursivecamera") )//|| !camera.tag.Equals("cullingcamera"))
             return false;
         Transform doorTrans = controller.forwardPortal.transform;
         Vector3 weights = getPositionalWeights(camera.transform.position - doorTrans.position, doorTrans);
@@ -79,16 +90,25 @@ public class PortalRenderer : MonoBehaviour
         if (Camera.current.tag.Equals("RecursiveCamera"))
         {
             previousCamera = Camera.current.gameObject;
-            float CameraCount = Camera.current.depth * -1 + 1;    //Start from zero
+            float CameraCount = (Camera.current.depth / -2) +1;    //Start from zero
             if (CameraCount < BluePrints.MAX_RENDER_LAYERS)      // We can make another camera
             {
-                cam = cameras[(int)CameraCount - 1];
+                // Because the cameras are staggered we can use same calculation
+                // Since they pair, their indexes are the same and depth is always 1 off
+                cam = cameras[((int)Camera.current.depth / - 2) +1]; // -3 / -2 = 1
+                cullCam = cullingCameras[((int)Camera.current.depth / -2) +1]; // -2 / -2 = 1
+
                 cam.SetActive(true);
+                cullCam.SetActive(true);
+            
+            } else
+            {
+                Debug.Log("Cant render layer " + Camera.current.depth);
             }
             renderedLayers++;
         } else
         {
-            cam = null;
+            Debug.Log("Cant render with camera of tag" + Camera.current.tag);
         }
     }
 
@@ -199,10 +219,3 @@ class MiniTransform
         this.rotation = rotation;
     }
 }
-
-// Something to Consider::
-//Plane[] planes = GeometryUtility.CalculateFrustumPlanes(Camera);
-//      if (GeometryUtility.TestPlanesAABB(planes, Object.collider.bounds))
-//          return true;
-//      else
-//          return false;
