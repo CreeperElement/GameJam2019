@@ -33,15 +33,21 @@ namespace Assets.Camera
         {
             // TODO: After some testing, perhaps see if some variability is needed
             var lineHeight = y(point.x);
-            return point.y > lineHeight;
+            return FloatingMath.GreaterThan(point.y, lineHeight, .001f);
         }
 
         public bool pointIsBelow(Vector2 point)
         {
             // TODO: After some testing, perhaps see if some variability is needed
             var lineHeight = y(point.x);
-            return point.y < lineHeight;
+            return FloatingMath.LessThan(point.y, lineHeight, .01f);
         }
 
+        public Vector2 Intersection(Line b)
+        {
+            float x = (b.Intercept - Intercept) / (Slope - b.Slope);
+            float y = Slope * x + Intercept;
+            return new Vector2(x, y);
+        }
     }
 }

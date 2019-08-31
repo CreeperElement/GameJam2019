@@ -54,7 +54,27 @@ namespace Assets.Camera
         /// <returns>A true/false statement based on the BoundaryCondition</returns>
         public bool inBounds(Vector2 point)
         {
-            switch(_boundaryCondition)
+            return inBounds(point, _boundaryCondition);
+        }
+
+        public bool invertedInBounds(Vector2 point) {
+            if (_boundaryCondition == BoundaryCondition.Above || _boundaryCondition == BoundaryCondition.AboveOrEqual)
+                return inBounds(point, BoundaryCondition.Below);
+            else if (_boundaryCondition == BoundaryCondition.Below || _boundaryCondition == BoundaryCondition.BelowOrEqual)
+                return inBounds(point, BoundaryCondition.Above);
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Test the boundary with whichever condition you want
+        /// </summary>
+        /// <param name="point">The point to test</param>
+        /// <param name="bound">The condition to test by</param>
+        /// <returns>Is the point in the boundary</returns>
+        public bool inBounds(Vector2 point, BoundaryCondition bound)
+        {
+            switch (bound)
             {
                 case BoundaryCondition.Above:
                     return pointIsAbove(point);

@@ -20,17 +20,17 @@ public class PortalCutoutRender : MonoBehaviour
     private Mesh mesh, coverMesh;
     GameObject CameraMesh;
 
-	private void Start()
-	{
-		cam = GetComponent<Camera>();
-		mask = new Texture2D(cam.pixelWidth, cam.pixelHeight, TextureFormat.ARGB32, true);
+    private void Start()
+    {
+        cam = GetComponent<Camera>();
+        mask = new Texture2D(cam.pixelWidth, cam.pixelHeight, TextureFormat.ARGB32, true);
 
-		fillColorArray = mask.GetPixels();
-		for (int i = 0; i < fillColorArray.Length; i++)
-		{
-			fillColorArray[i] = Color.black;
-		}
-		mask.SetPixels(fillColorArray);
+        fillColorArray = mask.GetPixels();
+        for (int i = 0; i < fillColorArray.Length; i++)
+        {
+            fillColorArray[i] = Color.black;
+        }
+        mask.SetPixels(fillColorArray);
         mask.Apply();
 
         pixelArray = new Color[fillColorArray.Length];
@@ -40,17 +40,26 @@ public class PortalCutoutRender : MonoBehaviour
         Debug.Log($"(Mask) Height: {mask.height} Width: {mask.width}");
         Debug.Log($"(newTexture) Height: {newTexture.height} Width: {newTexture.width}");
 
-		mesh = controller.forwardPortal.GetComponent<MeshFilter>().mesh;
+        mesh = controller.forwardPortal.GetComponent<MeshFilter>().mesh;
         coverMesh = new Mesh();
-		//mat.SetTexture("_Mask", (Texture)newTexture);
-	}
+        //mat.SetTexture("_Mask", (Texture)newTexture);
+    }
 
 
     private void OnPreRender()
     {
+        // Puts a new 4 vertex mesh into the game object called CameraMesh
+        RefreshCameraMesh();
+        var mesh = CameraMesh.GetComponent<Mesh>();
+
+
+    }
+
+    private GameObject RefreshCameraMesh()
+    {
         coverMesh.Clear();
         var cameraViewCorners = new Vector3[4];
-        cam.CalculateFrustumCorners(new Rect(0, 0, 1, 1), cam.nearClipPlane*1.00001f, Camera.MonoOrStereoscopicEye.Mono, cameraViewCorners);
+        cam.CalculateFrustumCorners(new Rect(0, 0, 1, 1), cam.nearClipPlane * 1.00001f, Camera.MonoOrStereoscopicEye.Mono, cameraViewCorners);
         coverMesh.vertices = cameraViewCorners;
         var triangles = new int[] { 0, 1, 2, 2, 3, 0 };
         coverMesh.triangles = triangles;
@@ -64,69 +73,89 @@ public class PortalCutoutRender : MonoBehaviour
             CameraMesh.gameObject.AddComponent<MeshFilter>();
         if (CameraMesh.gameObject.GetComponent<MeshRenderer>() == null)
             CameraMesh.gameObject.AddComponent<MeshRenderer>();
-        CameraMesh.transform.position = gameObject.transform.position + gameObject.transform.forward* .0001f;
+        CameraMesh.transform.position = gameObject.transform.position + gameObject.transform.forward * .0001f;
         CameraMesh.transform.eulerAngles = gameObject.transform.rotation.eulerAngles;
         CameraMesh.gameObject.GetComponent<MeshFilter>().mesh = coverMesh;
+
+        GetVertices();
+        return CameraMesh;
     }
 
-    private void OnRenderImage(RenderTexture source, RenderTexture destination)
+    private void GetVertices()
     {
         /* Step 1: We make a plane. Unity allows us to define a plane by defining three points which the plane
          * is allowed to pass through. Theoretically, if we use the forward, up, and right components of the camera
          * in combination with the nearClipPlane distance; we can create three points on the nearClipPlane, and 
          * define the nearClipPlane.
          */
-         
-        Vector3 passThroughA, passThroughB, passThroughC;
-        passThroughA = transform.position + transform.forward * cam.nearClipPlane;
-        passThroughB = passThroughA + transform.right;
-        passThroughC = passThroughA + transform.up;
-        clippingPlane = new Plane(passThroughA, passThroughB, passThroughC);
 
         Transform portalTransform = controller.transform;
 
         Vector2[] vertices = new Vector2[mesh.vertices.Length];
         int vertexCount = 0;
 
-		foreach (Vector3 vertex in mesh.vertices)
-		{
-			// Get the real world position of the vector
-			Vector3 vertexPosition = portalTransform.TransformPoint(vertex);
-			// Add the location of the vector to the screen
-			vertices[vertexCount++] = cam.WorldToScreenPoint(vertexPosition);
-		}
-
-		const int _RADIUS = 5;
+        foreach (Vector3 vertex in mesh.vertices)
+        {
+            // Get the real world position of the vector
+            Vector3 vertexPosition = portalTransform.TransformPoint(vertex);
+            // Add the location of the vector to the screen
+            vertices[vertexCount++] = cam.WorldToScreenPoint(vertexPosition);
+        }
 
         // Get the shape
         var lines = getShape(vertices);
         // Fill in the shape
 
-        var width = mask.width;
-        var height = mask.height;
-
-        // This section at the moment is unusable. It is too drastic a framerate drop to be used
-        /*for(int y = 0; y < height; y++)
+        var allLineVertices = new List<Vector2>();
+        // I think this will work to make all combinations
+        // ABCDE => AB, AC, AD, AE, BC, BD, BE, CD, CE, DE
+        for (int i = 0; i < lines.Count; i++)
         {
-            var lineOffset = y * width;
-            for(int x = 0; x < width; x++)
+            for (int j = i; j < lines.Count; j++)
             {
-                if (inBounds(x, y, lines))
-                    pixelArray[lineOffset + x] = Color.white;
-                else
-                    pixelArray[lineOffset + x] = new Color(0, 0, 0, 0);
+                allLineVertices.AddRange(GetInBoundsIntersection(lines[i], lines[j], lines));
             }
-        }*/
+        }
+        var corners = ConvertScreenToMeshPoints();
+        var meshPoint = ConvertVerticesToMeshPoints(allLineVertices);
 
-        //mask.SetPixels(pixelArray);
-        //mask.Apply();
-        Debug.Log("hello");
+    }
+
+    private Vector3[] ConvertScreenToMeshPoints() {
+        var cameraViewCorners = new Vector3[4];
+        cam.CalculateFrustumCorners(new Rect(0, 0, 1, 1), cam.nearClipPlane * 1.00001f, Camera.MonoOrStereoscopicEye.Mono, cameraViewCorners);
+        var BottomLeft = cameraViewCorners[0];
+        var BottomRight = cameraViewCorners[3];
+        var TopLeft = cameraViewCorners[1];
+
+        var Right = BottomRight - BottomLeft;
+        var Up = TopLeft - BottomLeft;
+
+        return new Vector3[] { TopLeft, BottomRight + Up, BottomLeft, BottomRight };
+    }
+
+    private static Vector3[] ConvertVerticesToMeshPoints(List<Vector2> points)
+    {
         
+    }
 
+    private static List<Vector2> GetInBoundsIntersection(Line a, Line b, List<Boundary> boundaries)
+    {
+        var points = new List<Vector2>();
+        var intersection = a.Intersection(b);
+        if (inBounds(intersection, boundaries))
+            points.Add(intersection);
+        return points;
+    }
 
-        //System.IO.File.WriteAllBytes(Application.dataPath + "/" + "picture5886.png", mask.EncodeToPNG
-        mat.SetTexture("_Mask", (Texture)mask);
-        Graphics.Blit(source, destination, mat);
+    private static bool inBounds(Vector2 point, List<Boundary> boundaries)
+    {
+        foreach(var boundary in boundaries)
+        {
+            if (!boundary.inBounds(point))
+                return false;
+        }
+        return true;
     }
 
     private static float GetRadius(Vector2 center, Vector2 position)
@@ -134,7 +163,7 @@ public class PortalCutoutRender : MonoBehaviour
 	    return Vector2.Distance(center, position);
     }
 
-    private bool inBounds(int x, int y, List<Boundary> bounds)
+    private static bool inBounds(int x, int y, List<Boundary> bounds)
     {
         foreach(var boundary in bounds)
         {
@@ -143,7 +172,7 @@ public class PortalCutoutRender : MonoBehaviour
         return true;
     }
 
-    private List<Boundary> getShape(Vector2[] vertices)
+    private static List<Boundary> getShape(Vector2[] vertices)
     {
         // The vertices come from a mesh, which must have at least three vertices
         var bounds = new List<Boundary>();
@@ -154,10 +183,74 @@ public class PortalCutoutRender : MonoBehaviour
         bounds.Add(getBoundaryIncludingPoint(new Line(vertices[1], vertices[2]), vertices[0]));
         bounds.Add(getBoundaryIncludingPoint(new Line(vertices[2], vertices[0]), vertices[1]));
 
+        List<Vector2> outOfBoundsVectors = new List<Vector2>();
+        foreach (Vector2 point in vertices)
+        {
+            foreach (Boundary bound in bounds)
+            {
+                if (!bound.inBounds(point))
+                {
+                    outOfBoundsVectors.Add(point);
+                    break;
+                }
+            }
+        }
+
+        // Find the points caught in the corners
+        for (int i = 0; i < bounds.Count; i++)
+        {
+            var firstBound = bounds[i];
+            var secondBound = bounds[(i + 1) % bounds.Count];
+
+            var collision = firstBound.Intersection(secondBound);
+            var firstBoundInverse = -1 / firstBound.Slope;
+            var secondBoundInverse = -1 / secondBound.Slope;
+
+            var firstBoundPerpendicular = new Boundary(collision, new Vector2(collision.x + 1, collision.y + firstBoundInverse), firstBound.boundary);
+            var secondBoundPerpendicular = new Boundary(collision, new Vector2(collision.x + 1, collision.y + secondBoundInverse), secondBound.boundary);
+
+            foreach (var vertex in vertices)
+            {
+                // InvertedInBounds might not necessarily be the right choice but I can't prove otherwise
+                if(firstBoundPerpendicular.invertedInBounds(vertex) && secondBoundPerpendicular.invertedInBounds(vertex))
+                {
+                    var firstBoudIntersection = firstBound.Intersection(bounds[(bounds.Count - (i+1))]);
+                    var secondBoundIntersection = secondBound.Intersection(bounds[(i + 2) % bounds.Count]);
+                    bounds[i] = new Boundary(firstBoudIntersection, vertex, firstBound.boundary);
+                    bounds[(i + 1) % bounds.Count] = new Boundary(secondBoundIntersection, vertex, secondBound.boundary);
+                }
+            }
+        }
+
+        // Assumption: For the sake of efficiency we are going to keep the lines in order so that the two 
+        // endpoints of the line intersect with the lines before and after it in the list
+        bounds = RecursiveGetShape(vertices, bounds);
+
         return bounds;
     }
 
-    private Boundary getBoundaryIncludingPoint(Line line, Vector2 point)
+    private static List<Boundary> RecursiveGetShape(Vector2[] vertices, List<Boundary> bounds)
+    {
+        if (vertices.Length == 0)
+            return bounds;
+
+        List<Vector2> outOfBoundsVectors = new List<Vector2>();
+        foreach(Vector2 point in vertices)
+        {
+            foreach (Boundary bound in bounds) {
+                if(!bound.inBounds(point))
+                {
+                    outOfBoundsVectors.Add(point);
+                    break;
+                }
+            }
+        }
+
+        Vector2[] points = outOfBoundsVectors.ToArray();
+        return RecursiveGetShape(points, bounds);
+    }
+
+    private static Boundary getBoundaryIncludingPoint(Line line, Vector2 point)
     {
         var boundaryCondition = line.pointIsAbove(point) ?
             BoundaryCondition.Above : BoundaryCondition.Below;
