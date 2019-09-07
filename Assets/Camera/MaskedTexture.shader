@@ -8,6 +8,10 @@
 	}
 		SubShader
 	   {
+		   Stencil {
+			   Ref 1
+			   Comp Equal
+		   }
 		  Tags {"Queue" = "Transparent"}
 		  Lighting Off
 		  ZWrite Off

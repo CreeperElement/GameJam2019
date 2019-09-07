@@ -55,7 +55,7 @@ public class PortalRenderer : MonoBehaviour
             // Set the transform
             cam.transform.position = relativeTransform.position;
             cam.transform.eulerAngles = relativeTransform.rotation;
-            cam.GetComponent<Camera>().Render();
+            if(Camera.current != cam.GetComponent<Camera>()) cam.GetComponent<Camera>().Render();
         }
         //cam.GetComponent<Camera>().
         endRender();
