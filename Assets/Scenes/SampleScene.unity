@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.17276844, g: 0.21589246, b: 0.2978263, a: 1}
+  m_IndirectSpecularColor: {r: 0.17276794, g: 0.2158916, b: 0.29782537, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -997,7 +997,6 @@ GameObject:
   - component: {fileID: 1567950112}
   - component: {fileID: 1567950111}
   - component: {fileID: 1567950114}
-  - component: {fileID: 1567950113}
   m_Layer: 0
   m_Name: BluePrints
   m_TagString: Untagged
@@ -1034,18 +1033,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1567950113
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1567950110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3b52dce487afce44b1ecec104be0847, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1567950114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1684,6 +1671,11 @@ PrefabInstance:
         type: 3}
       propertyPath: near clip plane
       value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5950573696692890771, guid: 2d647c25767acd249a1c4d7f6554b37c,
+        type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 311
       objectReference: {fileID: 0}
     - target: {fileID: 5548855699963764781, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
