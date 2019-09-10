@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.17276794, g: 0.2158916, b: 0.29782537, a: 1}
+  m_IndirectSpecularColor: {r: 0.17276844, g: 0.21589246, b: 0.2978263, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 164582562}
   - component: {fileID: 164582564}
   - component: {fileID: 164582563}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: default (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -333,7 +333,7 @@ GameObject:
   - component: {fileID: 176727428}
   - component: {fileID: 176727430}
   - component: {fileID: 176727429}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: default (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -410,7 +410,7 @@ GameObject:
   - component: {fileID: 317100444}
   - component: {fileID: 317100449}
   - component: {fileID: 317100448}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: default (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -582,7 +582,7 @@ GameObject:
   - component: {fileID: 565389154}
   - component: {fileID: 565389153}
   - component: {fileID: 565389152}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: default (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -828,7 +828,7 @@ GameObject:
   - component: {fileID: 1212754291}
   - component: {fileID: 1212754296}
   - component: {fileID: 1212754295}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: default (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1151,7 +1151,7 @@ GameObject:
   - component: {fileID: 1970322409}
   - component: {fileID: 1970322408}
   - component: {fileID: 1970322407}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: default (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1273,7 +1273,7 @@ GameObject:
   - component: {fileID: 1990202016}
   - component: {fileID: 1990202015}
   - component: {fileID: 1990202014}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: default
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1547,7 +1547,7 @@ GameObject:
   - component: {fileID: 5500239400181809379}
   - component: {fileID: 5500239400181809378}
   - component: {fileID: 5500239400181809377}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: default
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1610,37 +1610,37 @@ PrefabInstance:
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15.26
+      value: 11.43
       objectReference: {fileID: 0}
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.02
+      value: 2.6
       objectReference: {fileID: 0}
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 30.12
+      value: 25.3
       objectReference: {fileID: 0}
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.050328393
       objectReference: {fileID: 0}
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.9902681
+      value: 0.92325056
       objectReference: {fileID: 0}
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.13917309
+      value: -0.1297544
       objectReference: {fileID: 0}
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0
+      value: 0.35810518
       objectReference: {fileID: 0}
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
@@ -1655,7 +1655,7 @@ PrefabInstance:
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
+      value: 137.6
       objectReference: {fileID: 0}
     - target: {fileID: 5950573696692890768, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
@@ -1675,7 +1675,7 @@ PrefabInstance:
     - target: {fileID: 5950573696692890771, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 311
+      value: 1335
       objectReference: {fileID: 0}
     - target: {fileID: 5548855699963764781, guid: 2d647c25767acd249a1c4d7f6554b37c,
         type: 3}

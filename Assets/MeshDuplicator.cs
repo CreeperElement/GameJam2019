@@ -10,11 +10,12 @@ public class MeshDuplicator : MonoBehaviour
     void Start()
     {
         var hiddenLayer = GetLayer(HIDDEN_WINDOW_LAYER);
-        foreach(var gameObject in FindObjectsOfType(typeof(GameObject)) as IEnumerable<GameObject>)
+        var portalLayer = GetLayer(PORTAL_LAYER);
+        foreach (var gameObject in FindObjectsOfType(typeof(GameObject)) as IEnumerable<GameObject>)
         {
             var meshRenderer = gameObject.GetComponent<MeshRenderer>();
             var layer = gameObject.layer;
-            if(meshRenderer != null && layer != hiddenLayer)
+            if(meshRenderer != null && layer != hiddenLayer && layer != portalLayer)
             {
                 var hiddenMeshLayer = new GameObject(gameObject.name + "(Hidden)");
                 hiddenMeshLayer.layer = hiddenLayer;
@@ -75,12 +76,15 @@ public class MeshDuplicator : MonoBehaviour
     }
 
     private const string HIDDEN_WINDOW_LAYER = "HiddenWindow";
+    private const string PORTAL_LAYER = "PortalLayer";
     private static int GetLayer(string layer)
     {
         switch (layer)
         {
             case HIDDEN_WINDOW_LAYER:
                 return 9;
+            case PORTAL_LAYER:
+                return 10;
             default:
                 return -1;
         }
