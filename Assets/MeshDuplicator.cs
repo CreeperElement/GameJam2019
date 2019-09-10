@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEngine;
 
 public class MeshDuplicator : MonoBehaviour
@@ -21,8 +22,29 @@ public class MeshDuplicator : MonoBehaviour
                 var hiddenMeshFilter = hiddenMeshLayer.AddComponent<MeshFilter>();
                 hiddenMeshFilter.mesh = gameObject.GetComponent<MeshFilter>().mesh;
                 var newMeshName = RemoveText(meshRenderer.material.name, " (Instance)");
-                Debug.Log(newMeshName);
+                var materialPaths = AssetDatabase.FindAssets(newMeshName);
+                string materialPath = "Assets\\Materials\\Resources\\DefaultMaterial_Hidden.mat";
+                foreach(var path in materialPaths)
+                {
+                    var rootPath = RemoveText(AssetDatabase.GUIDToAssetPath(path), newMeshName + ".mat");
+                    // At this point only an exact match will end with a slash
+                    //Path/RedMaterial.mat will simply be Path/ if we searched redmaerial
+                    //Path/RedMaterial_Gloves.mat will not match
+                    if (rootPath.EndsWith("/"))
+                    {
+                        materialPath = rootPath + newMeshName + "_Hidden.mat";
+                        break;
+                    }
+                }
 
+                var loadedMaterial = AssetDatabase.LoadAssetAtPath(materialPath, typeof(Material)) as Material;
+                if (loadedMaterial == null)
+                {
+                    loadedMaterial = AssetDatabase.LoadAssetAtPath("Assets\\Materials\\Resources\\DefaultMaterial_Hidden.mat", typeof(Material)) as Material;
+                    Debug.Log("Null");
+                }
+                hiddenMeshRenderer.material = loadedMaterial;
+                Debug.Log(loadedMaterial + " : "+ hiddenMeshRenderer.material);
                 hiddenMeshLayer.transform.position = gameObject.transform.position;
                 hiddenMeshLayer.transform.localEulerAngles = gameObject.transform.localEulerAngles;
                 hiddenMeshLayer.transform.parent = gameObject.transform;
@@ -41,18 +63,13 @@ public class MeshDuplicator : MonoBehaviour
         if (!original.Contains(textToRemove))
             return original;
 
-        var originalArray = Regex.Split(original, textToRemove);
-        Debug.Log(originalArray.Length);
-        var arrayLength = originalArray.Length;
-        var i = 0;
-        var newString = "";
-
-        do
+        var newString = (string)original.Clone();
+        while(newString.Contains(textToRemove))
         {
-            if(!originalArray[i].Equals(textToRemove))
-                newString += originalArray[i];
-            i++;
-        } while (i < arrayLength);
+            var index = newString.IndexOf(textToRemove);
+            var endIndex = index + textToRemove.Length;
+            newString = newString.Substring(0, index) + newString.Substring(endIndex, newString.Length - endIndex);
+        }
 
         return newString;
     }
